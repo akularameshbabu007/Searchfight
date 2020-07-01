@@ -33,7 +33,7 @@ namespace Searchfight.Controllers
         }
 
         [HttpGet]
-        [Route("/search")]
+        [Route("/searchfight")]
         public async Task<IEnumerable<string>> Get([FromQuery(Name = "args")] string[] args)
         {
             var result = new List<string>();
