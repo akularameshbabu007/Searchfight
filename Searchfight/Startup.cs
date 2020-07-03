@@ -14,15 +14,12 @@ namespace Searchfight
 {
     public class Startup
     {
-        private readonly ILifetimeScope _webHostScope;
-        private ILifetimeScope _aspNetScope;
-
-        public Startup(ILifetimeScope webHostScope)
+        public Startup(IConfiguration configuration)
         {
-            _webHostScope = webHostScope ?? throw new ArgumentNullException(nameof(webHostScope));
+            Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; }        
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
@@ -30,15 +27,15 @@ namespace Searchfight
             services.AddControllers();
             services.AddTransient<ISearchfightSummaryCounter, SearchfightSummaryCounter>();
             services.AddTransient<ISearchService, SearchService>();
-            // just works with Autofac 4.6.1
-            _aspNetScope = _webHostScope.BeginLifetimeScope(builder => builder.Populate(services));
+            services.AddMvc();
+            var builder = new ContainerBuilder();
+            builder.Populate(services);
 
-
-
-            return new AutofacServiceProvider(_aspNetScope);
+            var container = builder.Build();
+            return new AutofacServiceProvider(container);
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, Microsoft.AspNetCore.Hosting.IApplicationLifetime appLifetime)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
@@ -55,7 +52,7 @@ namespace Searchfight
             {
                 endpoints.MapControllers();
             });
-            appLifetime.ApplicationStopped.Register(() => _aspNetScope.Dispose());
+            
         }
     }
 }

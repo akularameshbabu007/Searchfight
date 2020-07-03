@@ -10,27 +10,14 @@ namespace Searchfight
 {
 	public class Program
 	{
-		static async Task Main(string[] args)
-		{
-			var builder = new ContainerBuilder();
+        public static void Main(string[] args)
+        {
+            CreateWebHostBuilder(args).Build().Run();
+        }
 
-			using (var container = builder.Build())
-			{
-				await StartWebServerAsync(container);
-			}
-		}
-
-		private static async Task StartWebServerAsync(ILifetimeScope scope)
-		{
-			using (var webHostScope = scope.BeginLifetimeScope(builder => builder.RegisterType<Startup>().AsSelf()))
-			{
-				await WebHost
-					.CreateDefaultBuilder()
-					.UseStartup<Startup>()
-					.ConfigureServices(services => services.AddTransient(provider => webHostScope.Resolve<Startup>()))
-					.Build()
-					.RunAsync();
-			}
-		}
-	}
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>();
+    }
 }
+
