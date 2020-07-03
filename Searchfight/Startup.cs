@@ -30,12 +30,11 @@ namespace Searchfight
             services.AddControllers();
             services.AddTransient<ISearchfightSummaryCounter, SearchfightSummaryCounter>();
             services.AddTransient<ISearchService, SearchService>();
-            // doesn't work with Autofac 4.6.0 and child scopes.
-            // An exception is thrown on startup: Cannot resolve parameter 'IOptionsFactory<KestrelServerOptions>'
+            // just works with Autofac 4.6.1
             _aspNetScope = _webHostScope.BeginLifetimeScope(builder => builder.Populate(services));
 
-           
-            
+
+
             return new AutofacServiceProvider(_aspNetScope);
         }
 
